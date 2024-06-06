@@ -2,213 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxy Script</title>
-    <style>
- body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #111;
-            color: #fff;
-        }
-
-        header {
-            background-color: #ff0066;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 2em;
-            letter-spacing: 2px;
-        }
-
-        main {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 80px);
-            padding: 10px;
-            border: 1px solid #ff0066;
-            border-radius: 5px;
-            margin-right: 10px;
-            font-size: 1em;
-            background-color: #222;
-            color: #fff;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #ff0066;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #ff0044;
-        }
-
-        #output {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #333;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(255, 0, 102, 0.5);
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        pre {
-            background-color: #444;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-            color: #fff;
-        }
-
-        p {
-            margin: 10px 0;
-        }
-
-        .error {
-            color: #ff0066;
-        }
-
-        /* Estilos para el iframe */
-        #preview {
-            border: none;
-            width: 100%;
-            height: 500px;
-            margin-top: 20px;
-        }
-
-    </style>
-
+    <title>Vulnerable Login</title>
 </head>
 <body>
-<header>
-    <h1>Proxy Script</h1>
-</header>
-<main>
-    <div class="container">
-        <input type="text" id="urlInput" placeholder="Enter URL">
-        <button id="getButton">Fetch Data</button>
-    </div>
-    <div id="output" class="container"></div>
-    <!-- Iframe para previsualización -->
-    <iframe id="preview" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
-</main>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <button type="button" onclick="login()">Login</button>
+    </form>
 
-<script>
-    // Función para formatear los headers
-    function formatHeaders(headers) {
-        return Object.entries(headers).map(([name, value]) => `${name}: ${value}`).join('\n');
-    }
-
-    // Función para mostrar datos en el formato deseado
-    function displayData(data) {
-        const output = document.getElementById('output');
-        output.innerHTML = `
-                <pre>Browser Headers:\n${formatHeaders(data.browserHeaders)}</pre>
-                <pre>Response Headers:\n${formatHeaders(data.responseHeaders)}</pre>
-                <p>Content-Type: ${data.contentType}</p>
-                <p>Cookies: ${data.cookies}</p>
-                <pre>Body:\n${typeof data.responseBody === 'string' ? data.responseBody : JSON.stringify(data.responseBody, null, 2)}</pre>
-            `;
-    }
-
-    // Función para obtener datos del servidor
-    async function getData(url = "") {
-        try {
-            // Log the URL for debugging purposes
-            console.log(`Sending GET request to: ${url}`);
-
-            // Headers del navegador
-            const headers = {
-                Accept: window.navigator.userAgent,
-                // Otros headers...
-            };
-
-            // Realizar la solicitud
-            const response = await fetch(url, {
-                method: "GET",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin",
-                redirect: "follow",
-                referrerPolicy: "no-referrer",
-                headers: headers
-            });
-
-            // Verificar si la respuesta es correcta (código de estado 200-299)
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            // Obtener los headers de la respuesta
-            const responseHeaders = {};
-            response.headers.forEach((value, name) => {
-                responseHeaders[name] = value;
-            });
-
-            // Obtener los datos de la respuesta
-            const contentType = response.headers.get("Content-Type");
-            const cookies = response.headers.get("Set-Cookie");
-            let responseBody = null;
-            if (contentType && contentType.includes("application/json")) {
-                responseBody = await response.json();
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            localStorage.setItem('username', username);
+            localStorage.setItem('password', password);
+            if (username === 'admin' && password === 'admin123') {
+                alert('Login successful!');
             } else {
-                responseBody = await response.text();
+                alert('Invalid credentials!');
             }
-
-            // Devolver los datos
-            return {
-                browserHeaders: headers,
-                responseHeaders: responseHeaders,
-                contentType: contentType,
-                cookies: cookies,
-                responseBody: responseBody
-            };
-        } catch (error) {
-            console.error("Error:", error);
-            throw error;
+            document.body.innerHTML += `<p>Welcome, ${username}!</p>`;
         }
-    }
-
-    // Event listener para el botón de solicitud
-    document.getElementById('getButton').addEventListener('click', () => {
-        const url = document.getElementById('urlInput').value.trim();
-        if (!url) {
-            document.getElementById('output').innerHTML = '<p class="error">Error: Please enter a valid URL.</p>';
-            return;
-        }
-        getData('https://corsproxy.io/?' + encodeURIComponent(url)).then(displayData).catch(error => {
-            document.getElementById('output').innerHTML = `<p class="error">Error: ${error.message}</p>`;
-        });
-
-        // Actualizar la previsualización con la URL ingresada
-        document.getElementById('preview').src = url;
-    });
-
-</script>
+    </script>
 </body>
 </html>
