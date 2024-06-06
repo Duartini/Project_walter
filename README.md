@@ -12,14 +12,14 @@ Este proyecto demuestra los riesgos de seguridad al almacenar credenciales en `l
 localStorage.setItem('username', username);
 localStorage.setItem('password', password);
 ```
-###Credenciales debiles
+### Credenciales debiles
 ```
 if(username === 'admin' && password === 'admin123')
 ```
-###Validación de Login Insegura:
+### Validación de Login Insegura:
 La validación de credenciales se realiza en el lado del cliente, lo cual es muy inseguro. Esto permite a un atacante modificar el script para siempre pasar la validación, independientemente de las credenciales ingresadas.
 
-###Posibilidad de Ataques de Inyección de HTML (HTML Injection):
+### Posibilidad de Ataques de Inyección de HTML (HTML Injection):
 
 ```
 document.body.innerHTML += `<p>Welcome, ${username}!</p>`;
